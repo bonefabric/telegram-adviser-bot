@@ -30,7 +30,7 @@ func New(token string) Telegram {
 }
 
 func (t *Telegram) Updates(ctx context.Context) ([]Update, error) {
-	var v url.Values
+	v := url.Values{}
 	v.Add("offset", strconv.Itoa(t.offset))
 
 	data, err := t.doRequest(ctx, t.url("getUpdates", v), nil)
