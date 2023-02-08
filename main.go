@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	tgClient "bonefabric/adviser/clients/telegram"
+	"bonefabric/adviser/config"
 	"bonefabric/adviser/pool"
 	tgUnit "bonefabric/adviser/units/telegram"
 )
@@ -15,13 +16,17 @@ import (
 func main() {
 	log.Println("application started")
 
+	cnf := config.Load()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	go handleSysSignals(cancel)
 
-	tg := tgUnit.New(tgClient.Telegram{})
+	tgc := tgClient.New(cnf.TgToken())
+
+	tgu := tgUnit.New(tgc)
 
 	p := pool.Pool{}
-	p.AddUnits(&tg)
+	p.AddUnits(&tgu)
 	p.Start(ctx)
 
 	log.Println("application stopped")
