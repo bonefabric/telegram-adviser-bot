@@ -3,10 +3,13 @@ package config
 import (
 	"flag"
 	"log"
+
+	"bonefabric/adviser/store"
 )
 
 type Config struct {
-	tgToken string
+	tgToken     string
+	storeDriver store.StoreDriver
 }
 
 func Load() Config {
@@ -16,11 +19,21 @@ func Load() Config {
 
 	var c Config
 
+	var stdrvr string
+
 	flag.StringVar(&c.tgToken, "tt", "", "telegram bot token")
+	flag.StringVar(&stdrvr, "sd", "sqlite3", "store driver (sqlite3)")
 	flag.Parse()
 
 	if c.tgToken == "" {
 		log.Fatal("tt flag required")
+	}
+
+	switch stdrvr {
+	case "sqlite3":
+		c.storeDriver = store.StoreSqlite3
+	default:
+		log.Fatal("invalid store driver")
 	}
 
 	return c
@@ -28,4 +41,8 @@ func Load() Config {
 
 func (c *Config) TgToken() string {
 	return c.tgToken
+}
+
+func (c *Config) StoreDriver() store.StoreDriver {
+	return c.storeDriver
 }
