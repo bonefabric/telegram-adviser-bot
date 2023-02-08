@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bonefabric/adviser/units/telegram"
 	"context"
 	"log"
 	"os"
@@ -16,7 +17,10 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go handleSysSignals(cancel)
 
+	tgUnit := telegram.Telegram{}
+
 	p := pool.Pool{}
+	p.AddUnits(tgUnit)
 	p.Start(ctx)
 
 	log.Println("application stopped")
