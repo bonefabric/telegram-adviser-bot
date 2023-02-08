@@ -7,14 +7,19 @@ import (
 	"time"
 
 	"bonefabric/adviser/clients/telegram"
+	"bonefabric/adviser/store"
 )
 
 type Telegram struct {
 	client telegram.Telegram
+	store  store.Store
 }
 
-func New(client telegram.Telegram) Telegram {
-	return Telegram{client: client}
+func New(client telegram.Telegram, store store.Store) Telegram {
+	return Telegram{
+		client: client,
+		store:  store,
+	}
 }
 
 func (t *Telegram) Start(ctx context.Context, wg *sync.WaitGroup) {
@@ -62,6 +67,17 @@ func (t *Telegram) fetch(ctx context.Context) []telegram.Update {
 }
 
 func (t *Telegram) process(ctx context.Context, upd telegram.Update) {
-	//todo
-	log.Println("upd")
+	msg := upd.Message
+	if msg == nil || msg.Text == nil || *msg.Text == "" || msg.From == nil {
+		log.Printf("failed to process update %d: empty message, text or user\n", upd.ID)
+		return
+	}
+
+	b := store.Bookmark{
+		Text: *msg.Text,
+		User: msg.From.ID,
+	}
+	if err := t.store.Save(ctx, b); err != nil {
+		log.Printf("failed to store bookmark: %s\n", err)
+	}
 }

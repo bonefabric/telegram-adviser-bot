@@ -39,7 +39,7 @@ func main() {
 		}
 	}(st)
 
-	tgu := tgUnit.New(tgc)
+	tgu := tgUnit.New(tgc, st)
 
 	p := pool.Pool{}
 	p.AddUnits(&tgu)
