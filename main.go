@@ -1,14 +1,15 @@
 package main
 
 import (
-	"bonefabric/adviser/units/telegram"
 	"context"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	tgClient "bonefabric/adviser/clients/telegram"
 	"bonefabric/adviser/pool"
+	tgUnit "bonefabric/adviser/units/telegram"
 )
 
 func main() {
@@ -17,10 +18,10 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go handleSysSignals(cancel)
 
-	tgUnit := telegram.Telegram{}
+	tg := tgUnit.New(tgClient.Telegram{})
 
 	p := pool.Pool{}
-	p.AddUnits(tgUnit)
+	p.AddUnits(&tg)
 	p.Start(ctx)
 
 	log.Println("application stopped")
