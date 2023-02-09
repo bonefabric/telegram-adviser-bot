@@ -2,9 +2,9 @@ package store
 
 import "context"
 
-type StoreDriver string
+type Driver string
 
-const StoreSqlite3 StoreDriver = "sqlite3"
+const DriverSqlite3 Driver = "sqlite3"
 
 type Store interface {
 	Save(ctx context.Context, b Bookmark) error

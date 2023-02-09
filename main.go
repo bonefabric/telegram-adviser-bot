@@ -55,9 +55,9 @@ func handleSysSignals(call context.CancelFunc) {
 	call()
 }
 
-func initStore(driver store.StoreDriver) (store.Store, error) {
+func initStore(driver store.Driver) (store.Store, error) {
 	switch driver {
-	case store.StoreSqlite3:
+	case store.DriverSqlite3:
 		return sqlite.New("data")
 	default:
 		return nil, errors.New("invalid driver")

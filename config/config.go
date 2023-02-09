@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	tgToken     string
-	storeDriver store.StoreDriver
+	storeDriver store.Driver
 }
 
 func Load() Config {
@@ -31,7 +31,7 @@ func Load() Config {
 
 	switch stdrvr {
 	case "sqlite3":
-		c.storeDriver = store.StoreSqlite3
+		c.storeDriver = store.DriverSqlite3
 	default:
 		log.Fatal("invalid store driver")
 	}
@@ -43,6 +43,6 @@ func (c *Config) TgToken() string {
 	return c.tgToken
 }
 
-func (c *Config) StoreDriver() store.StoreDriver {
+func (c *Config) StoreDriver() store.Driver {
 	return c.storeDriver
 }
