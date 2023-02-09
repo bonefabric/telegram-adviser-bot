@@ -34,27 +34,33 @@ func (t *Telegram) Start(ctx context.Context, wg *sync.WaitGroup) {
 }
 
 func (t *Telegram) start(ctx context.Context, done chan<- struct{}) {
-	defer close(done)
+	defer func(d chan<- struct{}) {
+		d <- struct{}{}
+		close(d)
+	}(done)
 
-cycle:
+	us := make(chan telegram.Update, 100)
+	usdone := make(chan struct{})
+
+	go t.process(us, usdone)
+
+out:
 	for {
 		select {
 		case <-ctx.Done():
-			break cycle
+			close(us)
+			<-usdone
+			break out
 		default:
-			time.Sleep(time.Second)
+			time.Sleep(time.Second * 3)
 			c, canc := context.WithTimeout(ctx, time.Second*5)
 			updates := t.fetch(c)
 			canc()
-
 			for _, u := range updates {
-				c, canc = context.WithTimeout(ctx, time.Second*3)
-				t.process(c, u)
-				canc()
+				us <- u
 			}
 		}
 	}
-	done <- struct{}{}
 }
 
 func (t *Telegram) fetch(ctx context.Context) []telegram.Update {
@@ -66,18 +72,37 @@ func (t *Telegram) fetch(ctx context.Context) []telegram.Update {
 	return updates
 }
 
-func (t *Telegram) process(ctx context.Context, upd telegram.Update) {
-	msg := upd.Message
-	if msg == nil || msg.Text == nil || *msg.Text == "" || msg.From == nil {
-		log.Printf("failed to process update %d: empty message, text or user\n", upd.ID)
-		return
-	}
+func (t *Telegram) process(upds <-chan telegram.Update, done chan<- struct{}) {
+	defer func(d chan<- struct{}) {
+		d <- struct{}{}
+		close(d)
+	}(done)
 
-	b := store.Bookmark{
-		Text: *msg.Text,
-		User: msg.From.ID,
-	}
-	if err := t.store.Save(ctx, b); err != nil {
-		log.Printf("failed to store bookmark: %s\n", err)
+	for {
+		upd, ok := <-upds
+		if !ok {
+			break
+		}
+
+		msg := upd.Message
+		if msg == nil || msg.Text == nil || *msg.Text == "" || msg.From == nil {
+			log.Printf("failed to process update %d: empty message, text or user\n", upd.ID)
+			continue
+		}
+
+		b := store.Bookmark{
+			Text: *msg.Text,
+			User: msg.From.ID,
+		}
+
+		ctx, canc := context.WithTimeout(context.Background(), time.Second)
+		saveErr := t.store.Save(ctx, b)
+		canc()
+
+		if saveErr != nil {
+			log.Printf("failed to store bookmark: %s\n", saveErr)
+		} else {
+			log.Printf("bookmark stored from user id %d\n", b.User)
+		}
 	}
 }
