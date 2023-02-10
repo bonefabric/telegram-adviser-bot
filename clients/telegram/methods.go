@@ -1,7 +1,6 @@
 package telegram
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -40,11 +39,11 @@ func (t *Telegram) Updates(ctx context.Context) ([]Update, error) {
 }
 
 func (t *Telegram) SendMessage(ctx context.Context, opts SendMessageOptions) error {
-	b, err := json.Marshal(opts)
-	if err != nil {
-		return fmt.Errorf("failed to marshal sendMessage options: %s", err)
-	}
-	resp, err := t.doRequest(ctx, t.url(MethodSendMessage, url.Values{}), bytes.NewReader(b))
+	v := url.Values{}
+	v.Add("chat_id", strconv.Itoa(opts.ChatID))
+	v.Add("text", opts.Text)
+
+	resp, err := t.doRequest(ctx, t.url(MethodSendMessage, v), nil)
 	if err != nil {
 		return fmt.Errorf("failed to send message: %s", err)
 	}
