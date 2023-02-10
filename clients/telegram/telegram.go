@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"strconv"
 )
 
 const ApiHost = "api.telegram.org"
@@ -27,31 +26,6 @@ func New(token string) Telegram {
 		httpClient: http.Client{},
 		basePath:   basePath(token),
 	}
-}
-
-func (t *Telegram) Updates(ctx context.Context) ([]Update, error) {
-	v := url.Values{}
-	v.Add("offset", strconv.Itoa(t.offset))
-
-	data, err := t.doRequest(ctx, t.url("getUpdates", v), nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get updates: %s", err)
-	}
-
-	rawUpd, err := t.parseResponse(data)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get updates: %s", err)
-	}
-
-	u := make([]Update, 0)
-	if err := json.Unmarshal(rawUpd, &u); err != nil {
-		return nil, fmt.Errorf("failed to parse updates: %s", err)
-	}
-
-	if u != nil && len(u) > 0 {
-		t.offset = u[len(u)-1].ID + 1
-	}
-	return u, nil
 }
 
 func (t *Telegram) parseResponse(data []byte) ([]byte, error) {
