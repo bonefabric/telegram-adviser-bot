@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	tgClient "bonefabric/adviser/clients/telegram"
-	"bonefabric/adviser/config"
+	"bonefabric/adviser/config/yaml"
 	"bonefabric/adviser/pool"
 	"bonefabric/adviser/store"
 	"bonefabric/adviser/store/sqlite"
@@ -18,15 +18,21 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+const configPath = "./config.yaml"
+
 func main() {
 	log.Println("application started")
 
-	cnf := config.Load()
+	cnf, err := yaml.Load(configPath)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go handleSysSignals(cancel)
 
-	tgc := tgClient.New(cnf.TgToken())
+	tgc := tgClient.New(cnf.TelegramToken())
 
 	st, err := initStore(cnf.StoreDriver())
 	if err != nil {
@@ -55,9 +61,9 @@ func handleSysSignals(call context.CancelFunc) {
 	call()
 }
 
-func initStore(driver store.Driver) (store.Store, error) {
+func initStore(driver string) (store.Store, error) {
 	switch driver {
-	case store.DriverSqlite3:
+	case string(store.DriverSqlite3):
 		return sqlite.New("data")
 	default:
 		return nil, errors.New("invalid driver")
