@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime/pprof"
 	"syscall"
 
 	tgClient "bonefabric/adviser/clients/telegram"
@@ -22,11 +23,16 @@ const configPath = "./config.yaml"
 
 func main() {
 	log.Println("application started")
+	defer log.Println("application stopped")
 
 	cnf, err := yaml.Load(configPath)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
+	}
+
+	if cnf.Profiling() {
+		defer profiler(cnf.ProfileFile())()
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -50,8 +56,15 @@ func main() {
 	p := pool.Pool{}
 	p.AddUnits(&tgu)
 	p.Start(ctx)
+}
 
-	log.Println("application stopped")
+func initStore(driver string) (store.Store, error) {
+	switch driver {
+	case string(store.DriverSqlite3):
+		return sqlite.New("data")
+	default:
+		return nil, errors.New("invalid driver")
+	}
 }
 
 func handleSysSignals(call context.CancelFunc) {
@@ -61,11 +74,22 @@ func handleSysSignals(call context.CancelFunc) {
 	call()
 }
 
-func initStore(driver string) (store.Store, error) {
-	switch driver {
-	case string(store.DriverSqlite3):
-		return sqlite.New("data")
-	default:
-		return nil, errors.New("invalid driver")
+func profiler(fname string) func() {
+	log.Println("profiling started")
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Printf("failed to open profiling file %s: %s\n", fname, err)
+		return func() {}
+	}
+	if err := pprof.StartCPUProfile(f); err != nil {
+		log.Printf("failed to start profiling: %s\n", err)
+	}
+
+	return func() {
+		pprof.StopCPUProfile()
+		if err := f.Close(); err != nil {
+			log.Printf("failed to close profiling file: %s\n", err)
+		}
+		log.Println("profiler stopped")
 	}
 }

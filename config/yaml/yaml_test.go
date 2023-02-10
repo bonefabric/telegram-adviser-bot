@@ -10,6 +10,9 @@ func TestLoadSuccess(t *testing.T) {
 app:
   telegram-token: "6084774046"
   store-driver: "sqlite3"
+profiling:
+  enabled: false
+  file: "cpu.prof"
 `
 	tmpFile, err := os.CreateTemp(".", "config.*.yaml")
 	if err != nil {
@@ -36,6 +39,12 @@ app:
 	}
 	if conf.StoreDriver() != "sqlite3" {
 		t.Errorf("incorrect storeDriver: %s", conf.StoreDriver())
+	}
+	if conf.Profiling() {
+		t.Errorf("incorrect profiling: %t", conf.Profiling())
+	}
+	if conf.ProfileFile() != "cpu.prof" {
+		t.Errorf("incorrect profiler file: %s", conf.ProfileFile())
 	}
 }
 
