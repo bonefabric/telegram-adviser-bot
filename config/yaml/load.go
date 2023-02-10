@@ -8,12 +8,18 @@ import (
 )
 
 type config struct {
-	App appConfig `yaml:"app"`
+	App       appConfig `yaml:"app"`
+	Profiling profiling `yaml:"profiling"`
 }
 
 type appConfig struct {
 	TelegramToken string `yaml:"telegram-token"`
 	StoreDriver   string `yaml:"store-driver"`
+}
+
+type profiling struct {
+	Enabled bool   `yaml:"enabled"`
+	File    string `yaml:"file"`
 }
 
 func Load(path string) (*Config, error) {
@@ -30,5 +36,7 @@ func Load(path string) (*Config, error) {
 	return &Config{
 		tgToken:     c.App.TelegramToken,
 		storeDriver: c.App.StoreDriver,
+		profiler:    c.Profiling.Enabled,
+		profileFile: c.Profiling.File,
 	}, nil
 }
