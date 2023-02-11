@@ -6,6 +6,7 @@ import (
 )
 
 type processor struct {
+	state map[int]userState
 }
 
 func (p *processor) extractCommand(input string) command {

@@ -25,7 +25,7 @@ func New(client telegram.Telegram, store store.Store) Telegram {
 	return Telegram{
 		client:    client,
 		store:     store,
-		processor: processor{},
+		processor: processor{state: make(map[int]userState)},
 	}
 }
 
