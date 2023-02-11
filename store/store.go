@@ -15,6 +15,7 @@ type Store interface {
 }
 
 type Bookmark struct {
+	Name string
 	Text string
 	User int
 }
