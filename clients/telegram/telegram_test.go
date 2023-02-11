@@ -71,3 +71,72 @@ func TestUserStruct(t *testing.T) {
 		})
 	}
 }
+
+func TestMessageStruct(t *testing.T) {
+	testCases := []struct {
+		name    string
+		data    string
+		want    Message
+		wantErr bool
+	}{
+		{
+			name: "test_message1",
+			data: `{"message_id":11}`,
+			want: Message{
+				ID:   11,
+				From: nil,
+				Text: nil,
+			},
+			wantErr: false,
+		},
+		{
+			name: "test_message1",
+			data: `{"message_id":"11"}`,
+			want: Message{
+				ID:   0,
+				From: nil,
+				Text: nil,
+			},
+			wantErr: true,
+		},
+		{
+			name: "test_message1",
+			data: `{"message_id":24,"from":{"id":55,"first_name":"user542"}}`,
+			want: Message{
+				ID: 24,
+				From: &User{
+					ID:        55,
+					FirstName: "user542",
+				},
+				Text: nil,
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tst := range testCases {
+		t.Run(tst.name, func(t *testing.T) {
+			var m Message
+			if err := json.Unmarshal([]byte(tst.data), &m); err != nil && !tst.wantErr {
+				t.Fatalf("failed to unarshal data: %s", err)
+			}
+			if m.ID != tst.want.ID {
+				t.Fatal("incorrect result - ID")
+			}
+			if (m.Text != nil && tst.want.Text == nil) || (m.Text == nil && tst.want.Text != nil) {
+				t.Fatal("incorrect result - Text")
+			}
+			if (m.From != nil && tst.want.From == nil) || (m.From == nil && tst.want.From != nil) {
+				t.Fatal("incorrect result - From")
+			}
+			if m.From != nil && tst.want.From != nil {
+				if m.From.ID != tst.want.From.ID {
+					t.Fatal("incorrect result - From.ID")
+				}
+				if m.From.FirstName != tst.want.From.FirstName {
+					t.Fatal("incorrect result - From.FirstName")
+				}
+			}
+		})
+	}
+}
