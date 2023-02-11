@@ -1,7 +1,26 @@
 package telegram
 
-type userState int
+type state int
+
+type userState struct {
+	state state
+	meta  userMeta
+}
+
+type userMeta struct {
+	bookmark struct {
+		name string
+		text string
+	}
+}
 
 const (
-	stateDefault userState = iota
+	defaultState state = iota
+	waitBookmarkName
+	waitBookmarkText
 )
+
+func (s *userState) reset() {
+	s.state = defaultState
+	s.meta = userMeta{}
+}
