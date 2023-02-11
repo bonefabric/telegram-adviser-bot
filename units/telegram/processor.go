@@ -14,7 +14,7 @@ type processor struct {
 }
 
 func (p *processor) process(ctx context.Context, msg string, from int) (string, error) {
-	if strings.HasSuffix(msg, "/") {
+	if strings.HasPrefix(msg, "/") {
 		return p.processCmd(msg, from)
 	}
 	return p.processArg(ctx, msg, from)
