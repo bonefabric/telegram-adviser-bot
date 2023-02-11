@@ -15,8 +15,6 @@ import (
 	"bonefabric/adviser/store"
 	"bonefabric/adviser/store/sqlite"
 	tgUnit "bonefabric/adviser/units/telegram"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 const configPath = "./config.yaml"

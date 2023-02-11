@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"bonefabric/adviser/store"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const initial = `CREATE TABLE IF NOT EXISTS 
