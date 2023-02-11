@@ -16,16 +16,17 @@ const onErrAnswer = "Sorry, something went wrong. Try again later"
 // Telegram unit
 type Telegram struct {
 	client    telegram.Telegram
-	store     store.Store
 	processor processor
 }
 
 // New Telegram unit constructor
 func New(client telegram.Telegram, store store.Store) Telegram {
 	return Telegram{
-		client:    client,
-		store:     store,
-		processor: processor{state: make(map[int]userState)},
+		client: client,
+		processor: processor{
+			state: make(map[int]userState),
+			store: store,
+		},
 	}
 }
 
@@ -99,7 +100,7 @@ func (t *Telegram) handleUpdates(upds <-chan telegram.Update, done chan<- struct
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 
-		answer, err := t.processor.process(ctx, *msg.Text)
+		answer, err := t.processor.process(ctx, *msg.Text, msg.From.ID)
 		if err != nil {
 			log.Printf("failed to process command: %s\n", err)
 			answer = onErrAnswer
