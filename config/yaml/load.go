@@ -15,7 +15,7 @@ type config struct {
 type appConfig struct {
 	TelegramToken string       `yaml:"telegram-token"`
 	StoreDriver   string       `yaml:"store-driver"`
-	StoreOptions  storeOptions `yaml:"store-config"`
+	StoreOptions  storeOptions `yaml:"store-options"`
 }
 
 type storeOptions struct {

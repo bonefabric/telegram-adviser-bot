@@ -4,7 +4,10 @@ import "context"
 
 type Driver string
 
-const DriverSqlite3 Driver = "sqlite3"
+const (
+	DriverSqlite3 Driver = "sqlite3"
+	DriverMysql   Driver = "mysql"
+)
 
 type Store interface {
 	Save(ctx context.Context, b Bookmark) error

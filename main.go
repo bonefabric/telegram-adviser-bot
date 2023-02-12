@@ -10,9 +10,11 @@ import (
 	"syscall"
 
 	tgClient "bonefabric/adviser/clients/telegram"
+	"bonefabric/adviser/config"
 	"bonefabric/adviser/config/yaml"
 	"bonefabric/adviser/pool"
 	"bonefabric/adviser/store"
+	"bonefabric/adviser/store/mysql"
 	"bonefabric/adviser/store/sqlite"
 	tgUnit "bonefabric/adviser/units/telegram"
 )
@@ -38,7 +40,7 @@ func main() {
 
 	tgc := tgClient.New(cnf.TelegramToken())
 
-	st, err := initStore(cnf.StoreDriver())
+	st, err := initStore(cnf)
 	if err != nil {
 		log.Fatalf("failed to init store: %s", err)
 	}
@@ -56,10 +58,18 @@ func main() {
 	p.Start(ctx)
 }
 
-func initStore(driver string) (store.Store, error) {
-	switch driver {
+func initStore(cnf config.Config) (store.Store, error) {
+	switch cnf.StoreDriver() {
 	case string(store.DriverSqlite3):
-		return sqlite.New("data")
+		return sqlite.New(cnf.StoreName())
+	case string(store.DriverMysql):
+		return mysql.New(mysql.DSN{
+			UserName: cnf.StoreUser(),
+			Password: cnf.StorePassword(),
+			Host:     cnf.StoreHost(),
+			Port:     cnf.StorePort(),
+			DBName:   cnf.StoreName(),
+		})
 	default:
 		return nil, errors.New("invalid driver")
 	}

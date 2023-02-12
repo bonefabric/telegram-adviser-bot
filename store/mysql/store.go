@@ -34,7 +34,10 @@ CREATE TABLE IF NOT EXISTS bookmark (
 func New(dsn DSN) (*Mysql, error) {
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
 		dsn.UserName, dsn.Password, dsn.Host, dsn.Port, dsn.DBName))
-	if err != nil || db.Ping() != nil {
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
 		return nil, err
 	}
 	if _, err = db.Exec(initial); err != nil {
