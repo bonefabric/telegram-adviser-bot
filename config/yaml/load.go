@@ -13,8 +13,17 @@ type config struct {
 }
 
 type appConfig struct {
-	TelegramToken string `yaml:"telegram-token"`
-	StoreDriver   string `yaml:"store-driver"`
+	TelegramToken string       `yaml:"telegram-token"`
+	StoreDriver   string       `yaml:"store-driver"`
+	StoreOptions  storeOptions `yaml:"store-config"`
+}
+
+type storeOptions struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Name     string `yaml:"name"`
 }
 
 type profiling struct {
@@ -34,9 +43,14 @@ func Load(path string) (*Config, error) {
 	}
 
 	return &Config{
-		tgToken:     c.App.TelegramToken,
-		storeDriver: c.App.StoreDriver,
-		profiler:    c.Profiling.Enabled,
-		profileFile: c.Profiling.File,
+		tgToken:       c.App.TelegramToken,
+		storeDriver:   c.App.StoreDriver,
+		storeHost:     c.App.StoreOptions.Host,
+		storePort:     c.App.StoreOptions.Port,
+		storeUser:     c.App.StoreOptions.User,
+		storePassword: c.App.StoreOptions.Password,
+		storeName:     c.App.StoreOptions.Name,
+		profiler:      c.Profiling.Enabled,
+		profileFile:   c.Profiling.File,
 	}, nil
 }

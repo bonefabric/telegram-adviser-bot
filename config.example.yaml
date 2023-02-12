@@ -1,6 +1,12 @@
 app:
   telegram-token: "token"
   store-driver: "sqlite3"
+  store-options:
+    host:
+    port:
+    user:
+    password:
+    name:
 profiling:
   enabled: false
   file: "cpu.prof"
