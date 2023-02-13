@@ -1,10 +1,15 @@
 package yaml
 
 type Config struct {
-	tgToken     string
-	storeDriver string
-	profiler    bool
-	profileFile string
+	tgToken       string
+	storeDriver   string
+	storeHost     string
+	storePort     int
+	storeUser     string
+	storePassword string
+	storeName     string
+	profiler      bool
+	profileFile   string
 }
 
 func (c *Config) TelegramToken() string {
@@ -21,4 +26,24 @@ func (c *Config) Profiling() bool {
 
 func (c *Config) ProfileFile() string {
 	return c.profileFile
+}
+
+func (c *Config) StoreHost() string {
+	return c.storeHost
+}
+
+func (c *Config) StorePort() int {
+	return c.storePort
+}
+
+func (c *Config) StoreUser() string {
+	return c.storeUser
+}
+
+func (c *Config) StorePassword() string {
+	return c.storePassword
+}
+
+func (c *Config) StoreName() string {
+	return c.storeName
 }
