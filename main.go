@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -80,21 +81,22 @@ func initStore(cnf config.Config, ctx context.Context) (store.Store, error) {
 }
 
 func loadConfig() (config.Config, error) {
+	errMsg := "failed to load config"
 	if flag.Parsed() {
-		return nil, errors.New("failed to load config: flag already parsed")
+		return nil, errors.New(fmt.Sprintf("%s: %s", errMsg, "flag already parsed"))
 	}
 	confFile := flag.String("config", "config.yaml", "config file name")
 	flag.Parse()
 
 	if confFile == nil || *confFile == "" {
-		return nil, errors.New("failed to load config: invalid file name")
+		return nil, errors.New(fmt.Sprintf("%s: %s", errMsg, "invalid file name"))
 	}
 
 	switch filepath.Ext(*confFile) {
 	case ".yaml":
 		return yaml.Load(*confFile)
 	default:
-		return nil, errors.New("failed to load config: invalid file")
+		return nil, errors.New(fmt.Sprintf("%s: %s", errMsg, "invalid file extension"))
 	}
 }
 
