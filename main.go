@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"runtime/pprof"
 	"syscall"
+	"time"
 
 	tgClient "bonefabric/adviser/clients/telegram"
 	"bonefabric/adviser/config"
@@ -40,7 +41,7 @@ func main() {
 
 	tgc := tgClient.New(cnf.TelegramToken())
 
-	st, err := initStore(cnf)
+	st, err := initStore(cnf, ctx)
 	if err != nil {
 		log.Fatalf("failed to init store: %s", err)
 	}
@@ -58,12 +59,15 @@ func main() {
 	p.Start(ctx)
 }
 
-func initStore(cnf config.Config) (store.Store, error) {
+func initStore(cnf config.Config, ctx context.Context) (store.Store, error) {
+	ctx, canc := context.WithTimeout(ctx, time.Second*5)
+	defer canc()
+
 	switch cnf.StoreDriver() {
 	case string(store.DriverSqlite3):
 		return sqlite.New(cnf.StoreName())
 	case string(store.DriverMysql):
-		return mysql.New(mysql.DSN{
+		return mysql.New(ctx, mysql.DSN{
 			UserName: cnf.StoreUser(),
 			Password: cnf.StorePassword(),
 			Host:     cnf.StoreHost(),
