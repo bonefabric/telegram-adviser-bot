@@ -15,13 +15,13 @@ type processor struct {
 
 func (p *processor) process(ctx context.Context, msg string, from int) (string, error) {
 	if strings.HasPrefix(msg, "/") {
-		return p.processCmd(msg, from)
+		return p.processCmd(ctx, msg, from)
 	}
 	return p.processArg(ctx, msg, from)
 }
 
 // working with command
-func (p *processor) processCmd(msg string, from int) (string, error) {
+func (p *processor) processCmd(ctx context.Context, msg string, from int) (string, error) {
 	p.resetUserState(from)
 
 	switch p.extractCommand(msg) {
@@ -29,6 +29,8 @@ func (p *processor) processCmd(msg string, from int) (string, error) {
 		return p.cmdHelp(), nil
 	case commandAddBookmark:
 		return p.cmdAddBookmark(from), nil
+	case commandPickBookmark:
+		return p.cmdPickBookmark(ctx, from), nil
 	default:
 		return p.cmdHelp(), nil
 	}

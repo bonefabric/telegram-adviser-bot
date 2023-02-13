@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"bonefabric/adviser/store"
@@ -12,6 +13,7 @@ type command string
 const commandStart command = "start"
 const commandHelp command = "help"
 const commandAddBookmark command = "addbookmark"
+const commandPickBookmark command = "pickbookmark"
 
 func (p *processor) cmdHelp() string {
 	return messageHelp
@@ -47,4 +49,16 @@ func (p *processor) bookmarkTextReceived(ctx context.Context, text string, from 
 	}
 
 	return messageBookmarkSaved
+}
+
+func (p *processor) cmdPickBookmark(ctx context.Context, from int) string {
+	b, err := p.store.PickRandom(ctx, from)
+	if err != nil {
+		if err == store.ErrNoBookmark {
+			return fmt.Sprintf(messageBookmarkPickFail, "no bookmarks")
+		}
+		log.Printf("failed to pick bookmark: %s", err)
+		return fmt.Sprintf(messageBookmarkPickFail, "try again later")
+	}
+	return fmt.Sprintf(massageBookmarkPicked, b.Name, b.Text)
 }
