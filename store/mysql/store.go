@@ -60,7 +60,7 @@ func (s *Mysql) Delete(ctx context.Context, b store.Bookmark) error {
 func (s *Mysql) PickRandom(ctx context.Context, user int) (store.Bookmark, error) {
 	var b store.Bookmark
 	err := s.db.QueryRowContext(ctx,
-		"SELECT name, text FROM bookmarks WHERE user = ? ORDER BY RANDOM() LIMIT 1", user).Scan(&b.Name, &b.Text)
+		"SELECT name, text FROM bookmarks WHERE user = ? ORDER BY RAND() LIMIT 1", user).Scan(&b.Name, &b.Text)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return b, store.ErrNoBookmark
