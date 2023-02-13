@@ -78,15 +78,18 @@ func (s Sqlite) PickRandom(ctx context.Context, user int) (store.Bookmark, error
 	}(stmt)
 
 	if err = stmt.QueryRow(user).Scan(&b.Name, &b.Text); err != nil {
+		if err == sql.ErrNoRows {
+			return b, store.ErrNoBookmark
+		}
 		return b, err
 	}
 
 	return b, nil
 }
 
-func (s Sqlite) Exists(ctx context.Context, b store.Bookmark) (bool, error) {
+func (s Sqlite) Exists(_ context.Context, _ store.Bookmark) (bool, error) {
 	//TODO implement me
-	panic("implement me")
+	return false, nil
 }
 
 func (s Sqlite) Close() error {

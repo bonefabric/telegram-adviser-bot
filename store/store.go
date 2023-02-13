@@ -1,6 +1,9 @@
 package store
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type Driver string
 
@@ -8,6 +11,8 @@ const (
 	DriverSqlite3 Driver = "sqlite3"
 	DriverMysql   Driver = "mysql"
 )
+
+var ErrNoBookmark = errors.New("no bookmarks")
 
 type Store interface {
 	Save(ctx context.Context, b Bookmark) error

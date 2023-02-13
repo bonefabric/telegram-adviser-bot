@@ -62,6 +62,9 @@ func (s *Mysql) PickRandom(ctx context.Context, user int) (store.Bookmark, error
 	err := s.db.QueryRowContext(ctx,
 		"SELECT name, text FROM bookmarks WHERE user = ? ORDER BY RANDOM() LIMIT 1", user).Scan(&b.Name, &b.Text)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return b, store.ErrNoBookmark
+		}
 		return b, err
 	}
 	b.User = user
