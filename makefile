@@ -1,4 +1,5 @@
 APP_NAME=adviser
+DEV_CONFIG=config.dev.yaml
 
 test:
 	go test ./...
@@ -16,3 +17,6 @@ run:
 	docker run -d $(APP_NAME)
 
 deploy: test build stop run
+
+dev:
+	go run . -config $(DEV_CONFIG)
