@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime/pprof"
 	"syscall"
 	"time"
@@ -20,13 +23,11 @@ import (
 	tgUnit "bonefabric/adviser/units/telegram"
 )
 
-const configPath = "./config.yaml"
-
 func main() {
 	log.Println("application started")
 	defer log.Println("application stopped")
 
-	cnf, err := yaml.Load(configPath)
+	cnf, err := loadConfig()
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
@@ -76,6 +77,26 @@ func initStore(cnf config.Config, ctx context.Context) (store.Store, error) {
 		})
 	default:
 		return nil, errors.New("invalid driver")
+	}
+}
+
+func loadConfig() (config.Config, error) {
+	errMsg := "failed to load config"
+	if flag.Parsed() {
+		return nil, errors.New(fmt.Sprintf("%s: %s", errMsg, "flag already parsed"))
+	}
+	confFile := flag.String("config", "config.yaml", "config file name")
+	flag.Parse()
+
+	if confFile == nil || *confFile == "" {
+		return nil, errors.New(fmt.Sprintf("%s: %s", errMsg, "invalid file name"))
+	}
+
+	switch filepath.Ext(*confFile) {
+	case ".yaml":
+		return yaml.Load(*confFile)
+	default:
+		return nil, errors.New(fmt.Sprintf("%s: %s", errMsg, "invalid file extension"))
 	}
 }
 
