@@ -16,8 +16,9 @@ type userMeta struct {
 
 const (
 	defaultState state = iota
-	waitBookmarkName
-	waitBookmarkText
+	waitNewBookmarkName
+	waitNewBookmarkText
+	waitDeleteBookmarkName
 )
 
 func (s *userState) reset() {
