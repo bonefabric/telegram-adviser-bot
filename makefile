@@ -6,6 +6,7 @@ test:
 
 build:
 	docker build -t $(APP_NAME) .
+	docker scan $(APP_NAME)
 
 stop:
 	container_ids=$$(docker ps -a -q --filter ancestor=$(APP_NAME)); \
@@ -19,4 +20,4 @@ run:
 deploy: test build stop run
 
 dev:
-	go run . -config $(DEV_CONFIG)
+	go run bonefabric/adviser/cmd/adviser -config $(DEV_CONFIG)
