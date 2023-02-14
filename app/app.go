@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime/pprof"
 	"syscall"
 	"time"
 
@@ -34,12 +35,9 @@ type App struct {
 		ctx    context.Context
 		cancel context.CancelFunc
 	}
-	profiling struct {
-		enabled      bool
-		profilerFunc func()
-	}
-	pool  pool.Pool
-	store store.Store
+	pool          pool.Pool
+	store         store.Store
+	profilingFile *os.File
 }
 
 func New() App {
@@ -59,6 +57,10 @@ func (a *App) Init() error {
 		return fmt.Errorf("failed to load config: %s", err)
 	}
 
+	if err = a.startProfiling(); err != nil {
+		return fmt.Errorf("failed to start profiling: %s", err)
+	}
+
 	a.context.ctx, a.context.cancel = context.WithCancel(context.Background())
 	go a.handleSysSignals()
 
@@ -75,6 +77,7 @@ func (a *App) Init() error {
 func (a *App) Run() {
 	log.Println("app started")
 	defer a.context.cancel()
+	defer a.stopProfiling()
 
 	defer func(store store.Store) {
 		if err := store.Close(); err != nil {
@@ -143,4 +146,30 @@ func (a *App) initStore() (store.Store, error) {
 func (a *App) fillPool() {
 	telegramUnit := telegram.New(telegramClient.New(a.config.TelegramToken()), a.store)
 	a.pool.AddUnits(&telegramUnit)
+}
+
+func (a *App) startProfiling() (err error) {
+	if !a.config.Profiling() {
+		return
+	}
+	log.Println("profiling started")
+
+	if a.profilingFile, err = os.Create(a.config.ProfileFile()); err != nil {
+		return fmt.Errorf("failed to create profile file %s: %s", a.config.ProfileFile(), err)
+	}
+	if err = pprof.StartCPUProfile(a.profilingFile); err != nil {
+		return fmt.Errorf("failed to start cpu profiling: %s", err)
+	}
+	return
+}
+
+func (a *App) stopProfiling() {
+	if !a.config.Profiling() {
+		return
+	}
+	pprof.StopCPUProfile()
+	if err := a.profilingFile.Close(); err != nil {
+		log.Printf("failed to close profiling file: %s\n", err)
+	}
+	log.Println("profiling stopped")
 }
