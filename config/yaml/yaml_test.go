@@ -8,8 +8,17 @@ import (
 func TestLoadSuccess(t *testing.T) {
 	validYaml := `
 app:
-  telegram-token: "6084774046"
   store-driver: "sqlite3"
+  store-options:
+    host: "store-host"
+    port: 3306
+    user: "store-user"
+    password: "store-pass"
+    name: "store-name"
+  units:
+    telegram:
+      enabled: true
+      token: "some-token"
 profiling:
   enabled: false
   file: "cpu.prof"
@@ -34,11 +43,29 @@ profiling:
 	if conf == nil {
 		t.Error("nil config")
 	}
-	if conf.TelegramToken() != "6084774046" {
-		t.Errorf("incorrect tgToken: %s", conf.TelegramToken())
-	}
 	if conf.StoreDriver() != "sqlite3" {
 		t.Errorf("incorrect storeDriver: %s", conf.StoreDriver())
+	}
+	if conf.StoreHost() != "store-host" {
+		t.Errorf("incorrect storeHost: %s", conf.StoreHost())
+	}
+	if conf.StorePort() != 3306 {
+		t.Errorf("incorrect storePort: %d", conf.StorePort())
+	}
+	if conf.StoreUser() != "store-user" {
+		t.Errorf("incorrect storeUser: %s", conf.StoreUser())
+	}
+	if conf.StorePassword() != "store-pass" {
+		t.Errorf("incorrect storePassword: %s", conf.StorePassword())
+	}
+	if conf.StoreName() != "store-name" {
+		t.Errorf("incorrect storeName: %s", conf.StoreName())
+	}
+	if !conf.TelegramEnabled() {
+		t.Errorf("incorrect telegramEnabled: %t", conf.TelegramEnabled())
+	}
+	if conf.TelegramToken() != "some-token" {
+		t.Errorf("incorrect telegramToken: %s", conf.TelegramToken())
 	}
 	if conf.Profiling() {
 		t.Errorf("incorrect profiling: %t", conf.Profiling())

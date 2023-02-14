@@ -1,5 +1,4 @@
 app:
-  telegram-token: "token"
 # Drivers: sqlite3, mysql
   store-driver: "sqlite3"
   store-options:
@@ -8,6 +7,10 @@ app:
     user:
     password:
     name:
+  units:
+    telegram:
+      enabled: true
+      token: "some-token"
 profiling:
   enabled: false
   file: "cpu.prof"

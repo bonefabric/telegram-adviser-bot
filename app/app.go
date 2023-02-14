@@ -144,8 +144,10 @@ func (a *App) initStore() (store.Store, error) {
 }
 
 func (a *App) fillPool() {
-	telegramUnit := telegram.New(telegramClient.New(a.config.TelegramToken()), a.store)
-	a.pool.AddUnits(&telegramUnit)
+	if a.config.TelegramEnabled() {
+		telegramUnit := telegram.New(telegramClient.New(a.config.TelegramToken()), a.store)
+		a.pool.AddUnits(&telegramUnit)
+	}
 }
 
 func (a *App) startProfiling() (err error) {

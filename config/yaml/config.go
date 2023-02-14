@@ -1,7 +1,6 @@
 package yaml
 
 type Config struct {
-	tgToken       string
 	storeDriver   string
 	storeHost     string
 	storePort     int
@@ -10,10 +9,8 @@ type Config struct {
 	storeName     string
 	profiler      bool
 	profileFile   string
-}
-
-func (c *Config) TelegramToken() string {
-	return c.tgToken
+	tgToken       string
+	tgEnabled     bool
 }
 
 func (c *Config) StoreDriver() string {
@@ -46,4 +43,12 @@ func (c *Config) StorePassword() string {
 
 func (c *Config) StoreName() string {
 	return c.storeName
+}
+
+func (c *Config) TelegramToken() string {
+	return c.tgToken
+}
+
+func (c *Config) TelegramEnabled() bool {
+	return c.tgEnabled
 }

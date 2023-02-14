@@ -1,7 +1,6 @@
 package config
 
 type Config interface {
-	TelegramToken() string
 	StoreDriver() string
 	Profiling() bool
 	ProfileFile() string
@@ -10,4 +9,6 @@ type Config interface {
 	StoreUser() string
 	StorePassword() string
 	StoreName() string
+	TelegramEnabled() bool
+	TelegramToken() string
 }
