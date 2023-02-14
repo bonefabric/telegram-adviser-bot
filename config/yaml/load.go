@@ -13,9 +13,9 @@ type config struct {
 }
 
 type appConfig struct {
-	TelegramToken string       `yaml:"telegram-token"`
-	StoreDriver   string       `yaml:"store-driver"`
-	StoreOptions  storeOptions `yaml:"store-options"`
+	StoreDriver  string       `yaml:"store-driver"`
+	StoreOptions storeOptions `yaml:"store-options"`
+	Units        units        `yaml:"units"`
 }
 
 type storeOptions struct {
@@ -31,6 +31,13 @@ type profiling struct {
 	File    string `yaml:"file"`
 }
 
+type units struct {
+	Telegram struct {
+		Enabled bool   `yaml:"enabled"`
+		Token   string `yaml:"token"`
+	} `yaml:"telegram"`
+}
+
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -43,7 +50,6 @@ func Load(path string) (*Config, error) {
 	}
 
 	return &Config{
-		tgToken:       c.App.TelegramToken,
 		storeDriver:   c.App.StoreDriver,
 		storeHost:     c.App.StoreOptions.Host,
 		storePort:     c.App.StoreOptions.Port,
@@ -52,5 +58,7 @@ func Load(path string) (*Config, error) {
 		storeName:     c.App.StoreOptions.Name,
 		profiler:      c.Profiling.Enabled,
 		profileFile:   c.Profiling.File,
+		tgToken:       c.App.Units.Telegram.Token,
+		tgEnabled:     c.App.Units.Telegram.Enabled,
 	}, nil
 }
