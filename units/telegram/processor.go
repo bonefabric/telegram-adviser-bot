@@ -31,6 +31,8 @@ func (p *processor) processCmd(ctx context.Context, msg string, from int) (strin
 		return p.cmdAddBookmark(from), nil
 	case commandPickBookmark:
 		return p.cmdPickBookmark(ctx, from), nil
+	case commandRemoveBookmark:
+		return p.cmdRemoveBookmark(from), nil
 	default:
 		return p.cmdHelp(), nil
 	}
@@ -41,10 +43,12 @@ func (p *processor) processArg(ctx context.Context, arg string, from int) (strin
 	switch p.state[from].state {
 	case defaultState:
 		return p.cmdHelp(), nil
-	case waitBookmarkName:
+	case waitNewBookmarkName:
 		return p.bookmarkNameReceived(arg, from), nil
-	case waitBookmarkText:
+	case waitNewBookmarkText:
 		return p.bookmarkTextReceived(ctx, arg, from), nil
+	case waitDeleteBookmarkName:
+		return p.removingBookmarkNameReceived(ctx, from, arg), nil
 	default:
 		return p.cmdHelp(), nil
 	}

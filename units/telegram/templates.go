@@ -17,6 +17,9 @@ Save new bookmark.
 ## /pickbookmark
 Pick random bookmark.
 
+## /removebookmark
+Remove bookmark.
+
 ---
 
 If you need further assistance or have any questions, feel free to contact us.
@@ -42,4 +45,16 @@ const massageBookmarkPicked = `
 ## %s
 
 %s
+`
+
+const messageDeleteBookmark = `
+Write the name of the bookmark
+`
+
+const messageBookmarkDeleted = `
+Bookmark removed!
+`
+
+const messageBookmarkDeleteFail = `
+Failed to delete bookmark: %s
 `
