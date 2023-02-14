@@ -3,7 +3,7 @@ RUN apk add --no-cache build-base
 WORKDIR /build
 COPY . .
 
-RUN CGO_ENABLED=1 go build -o app .
+RUN CGO_ENABLED=1 go build -o app bonefabric/adviser/cmd/adviser
 
 
 FROM alpine
