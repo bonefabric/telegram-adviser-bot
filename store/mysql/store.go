@@ -53,7 +53,14 @@ func (s *Mysql) Save(ctx context.Context, b store.Bookmark) error {
 }
 
 func (s *Mysql) Delete(ctx context.Context, b store.Bookmark) error {
-	_, err := s.db.ExecContext(ctx, "DELETE FROM bookmarks WHERE name = ? AND user = ?", b.Name, b.User)
+	r, err := s.db.ExecContext(ctx, "DELETE FROM bookmarks WHERE name = ? AND user = ? LIMIT 1", b.Name, b.User)
+	rws, err := r.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rws != 1 {
+		return store.ErrNoBookmark
+	}
 	return err
 }
 
